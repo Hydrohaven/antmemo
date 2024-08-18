@@ -1,0 +1,57 @@
+#login-box {
+    /* Center Div Horizontally and Vertically */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 40px;
+
+    background-color: var(--back-color2);
+    border-radius: 10px;
+    border: 3px solid #384156;
+    transition: box-shadow 0.25s ease-out;
+}
+
+.user-input {
+    font-size: 16px;
+    font-family: var(--font);
+    width: 400px;
+    border-radius: 5px;
+
+    &.wrong {
+        border: 1px solid red;
+    }
+}
+
+.error-message {
+    color: red;
+}
+
+button {
+    font-family: var(--font);
+    font-size: 20px;
+    font-weight: bold;
+    width: 100%;
+    height: 40px;
+    border-radius: 5px;
+    border: 1px;
+    cursor: pointer;
+    background-color: var(--main-color1);
+    transition: background-color 0.25s ease-out;
+}
+
+button:hover {
+    background-color: var(--main-color3);
+}
+
+a:link {
+    color: var(--main-color1);
+}
+
+a:visited {
+    color: var(--main-color1);
+}
+
+a:active {
+    color: var(--main-color3);
+}

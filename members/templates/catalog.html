@@ -1,0 +1,251 @@
+{% extends "master.html" %}
+{% load static %}
+
+{% block title %}
+    {% if department %}
+        {{ department }} Catalog
+    {% else %}
+        Catalog Selection 
+    {% endif %}
+{% endblock title %}
+
+{% block link %}
+    <link rel="stylesheet" href="{% static "style.css" %}">
+{% endblock link %}
+
+
+{% block style %}
+    .main-container {
+        padding: 20px 0px 20px 20px;
+        margin: 10px 80px 0px 100px;
+    }
+
+    #filter {
+        {% comment %} position: absolute; {% endcomment %}
+        float: right;
+        height: 40px;
+        padding: 0px 0px 0px 15px;
+        cursor: pointer;
+    }
+
+
+    #settingsMenu {
+        position: absolute;
+        background-color: var(--back-color2);
+        padding: 15px;
+        border: 2px solid #384156;
+        border-radius: 10px;
+        z-index: 1000;
+        {% comment %} display: none; /* Initially hidden */ {% endcomment %}
+        float: right;
+    }
+
+    .hidden {
+        display: none;
+    }
+
+{% endblock style %}
+
+
+{% block content %}
+    <div id="header">
+        <h1 style="margin: 0px 0px 20px 0px">{% if department %}{{ department }} Catalog{% else %}Course Catalog{% endif %}</h1>
+        <form id="department-form">
+            <label for="department">Choose:</label>
+            <select type="text" id="department-select" name="department">
+                {% if allDepartments %}
+                {% for d in allDepartments %}
+                    {% if d.1 == department %}
+                        <option value="{{ d.1 }}" selected> {{ d.0 }} ({{ d.1 }})</option>
+                    {% else %}
+                        <option value="{{ d.1 }}"> {{ d.0 }} ({{ d.1 }})</option>
+                    {% endif %}
+                {% endfor %}
+                {% endif %}
+            </select>
+            <button type="submit" onclick="updateForm(event)" id="department-submit">Submit</button>
+        </form>
+    </div>  
+
+    <div class="main-container">
+        <img onclick="openFilter(event)" id="filter" src="{% static "filter.svg" %}">
+
+        <div id="settingsMenu" class="hidden">
+            <label>
+                <input onclick="hideCards(event)" type="checkbox" id="setting1">Hide cards without notes</input>
+            </label>
+        </div>
+    <div class="course-list">
+        {% if department %}
+        {% for course in allCourses %}
+            {% if course.department_tag == department %}
+                <div class="course-card">
+                    <h2>
+                        {% comment %} There's gotta be a way to make this prettier right? {% endcomment %}
+                        <span class="course-title id">{{ course.id }}</span> - 
+                        <span class="course-title name">
+                            {{ course.title }}. {{ course.unit_min }}
+                            {% if course.unit_min != course.unit_max %}- {{ course.unit_max }}
+                            {% endif %}
+                            units
+                        </span>
+                    </h2>
+
+                    <div class="course-card-front">                
+                        <p>{{ course.description }}</p>
+                        
+                        {% if course.coreq %}<p><strong>Corequisite:</strong> {{ course.coreq }}</p>{% endif %}
+                        {% if course.prereqs %}<p><strong>Prerequisite:</strong> {{ course.prereqs }}</p>{% endif %}
+                        {% if course.same_as %}<p>Same as {{ course.same_as }}</p>{% endif %}
+                        {% if course.overlap %}<p>Overlaps with {{ course.overlap }}</p>{% endif %}
+                        {% if course.restriction %}<p><strong>Resriction:</strong> {{ course.restriction }}</p>{% endif %}
+                    </div>
+                    
+                    {% if logged_in %}
+                        <form id="note-form">
+                            <div class="course-card-back">
+                                <textarea class="note-box" rows="10">{% for n in user_notes %}{% if n.0 == course.id %}{{ n.1 }}{% endif %}{% endfor %}</textarea>
+                            </div>
+
+                            {% comment %} Can't put this button in the div, messes height settings up {% endcomment %}
+                            <button onclick="saveNote(event)" class="flip-button save-button" style="float: right; visibility: hidden">Save</button>
+                        </form>
+                    {% else %}
+                        <div>
+                            <div class="course-card-back">
+                                <p><strong>You are not logged in, pleae <a href="/login">log in</a> to continue.</strong></p>
+                            </div>
+                        </div>
+                    {% endif %}
+                    
+                    <button onclick="showNote(event)" class="flip-button">+ Add Notes</button><br>
+                    <br>
+                </div>
+            {% endif %}
+        {% endfor %}
+        {% endif %}
+    </div>
+    </div>
+{% endblock content %}
+
+{% block footer %}{% include "fart.html" with beloved="Margaret Galvez"%}{% endblock footer %}
+
+{% block script %}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        function updateForm(event) {
+            event.preventDefault() // prevents form from submitting immediately
+            const department = document.getElementById("department-select").value.toUpperCase() // gets value of textfield
+            const url = '{% url "courses" "temp" %}'.replace('temp', department.replace(/[\s\\\/]/g, "%20")) // django url takes the current url and urlpatterns from urls.py
+            window.location.href = url
+        }
+
+        function showNote(event) {
+            const innerCard =  event.target.previousElementSibling.firstElementChild
+            const saveButton = event.target.previousElementSibling.lastElementChild
+            const noteButton = event.target
+            
+            if (innerCard.style.maxHeight === '' || innerCard.style.maxHeight !== 'none') {
+                innerCard.style.maxHeight = "none"
+                innerCard.style.visibility = "visible"
+                saveButton.style.visibility = "visible"
+                noteButton.textContent = '- Close Notes'
+            } else {
+                innerCard.style.maxHeight = 0
+                innerCard.style.visibility = "hidden"
+                saveButton.style.visibility = "hidden"
+                noteButton.textContent = '+ Add Notes'
+            }
+        }
+        
+        function saveNote(event) {
+            var noteElement = event.target
+            if (noteElement.textContent == 'Save') {
+                noteElement.textContent = 'Saved!'
+                noteElement.style.color = 'var(--main-color1)'
+
+                setTimeout(function() {
+                    noteElement.textContent = 'Save'
+                    noteElement.style.color = 'var(--main-color2)'
+                }, 3000)
+            } else {
+                noteElement.textContent = 'Save'
+            }
+        }
+        
+        $(document).ready(function() {
+            $('.save-button').click(function() {
+                event.preventDefault()
+
+                var saveButton = $(this) // grabs the clicked button as an element
+                var courseCard = saveButton.closest('.course-card') // closest travels up the DOM tree until it finds a matching value
+
+                var noteContent = courseCard.find('.note-box').val() // find travels down the DOM tree
+                var csrfToken = '{{ csrf_token }}'
+                var courseId = courseCard.find('.course-title.id').text()
+
+                //Ajax stands for Asynchronus JAvacsript Xml, some cool async tpya stuff
+                $.ajax({
+                    type: 'POST',
+                    url: '{% url "save_note" %}',
+                    data: {
+                        'note_content': noteContent,
+                        'course_id': courseId.trim(),
+                        'csrfmiddlewaretoken': csrfToken,
+                    },
+                    success: function(response) {},
+                    error: function(response) {}
+                })
+            })
+        })
+
+        function openFilter(event) {
+            var filterButton = document.getElementById('filter')
+            var settingsMenu = document.getElementById('settingsMenu')
+            
+            //event.stopPropagation()
+            var rect = filterButton.getBoundingClientRect()
+            settingsMenu.style.top = rect.bottom + 'px'
+            settingsMenu.style.left = rect.left + 'px'
+            settingsMenu.classList.toggle("hidden")
+        }
+
+        // Close the menu if clicking outside of it
+        document.addEventListener('click', function(event) {
+            var filterButton = document.getElementById('filter')
+            var settingsMenu = document.getElementById('settingsMenu') 
+
+            if (!settingsMenu.contains(event.target) && !filterButton.contains(event.target)) {
+                settingsMenu.classList.add('hidden')
+            }
+        })
+
+        function hideCards(event) {
+            const noteBoxes = document.getElementsByClassName('note-box')
+            for (let i = 0; i < noteBoxes.length; i++) {
+                var noteBox = noteBoxes[i]
+                var courseCard = noteBox.closest('.course-card')
+
+                if (event.target.checked) {
+                    if (noteBox.textContent.trim() == '') {
+                        courseCard.classList.add('hidden')
+                    }
+                } else {
+                    if (courseCard.classList.contains('hidden')) {
+                        courseCard.classList.remove('hidden')
+                    }
+                }
+            }
+        }
+        
+    </script>
+{% endblock script %}
+
+{% comment %} 
+
+All subtemplates must follow the parent template, whereas they cannot
+add anything that the parent template doesn't include. So I'm not allowed
+to create some random for loop in this template unless it was bounded by 
+an exisitng block defined in the parent, load static is fine though?
+
+{% endcomment %}

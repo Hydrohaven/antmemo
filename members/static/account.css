@@ -1,0 +1,55 @@
+.account-settings {
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 40px;
+
+    display: grid;
+    grid-template-columns: auto 1px 1fr;
+    grid-template-rows: auto;
+    gap: 10px;
+}
+
+.section-tags {
+    grid-column: 1;
+}
+
+.section-button {
+    font-family: var(--font);
+    font-size: 20px;
+    background-color: inherit;
+    color: white;
+    margin: 5px 0;
+    border: 1px;
+    cursor: pointer;
+}
+
+
+.separator {
+    grid-column: 2;
+    background-color: var(--main-color1);
+    width: 1px;
+    grid-row: 1 / -1;
+}
+
+.section-details-container {
+    grid-column: 3;
+    grid-row: 1 / -1;
+    font-size: 18px;
+}
+
+.section-details {
+    max-height: 0;
+    visibility: hidden;
+}
+
+.logout {
+    border-radius: 5px;
+    border: 1px;
+    cursor: pointer;
+    background-color: inherit;
+    color: red;
+    font-family: var(--font);
+    font-size: 25px;
+}

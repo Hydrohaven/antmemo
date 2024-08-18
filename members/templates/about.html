@@ -1,0 +1,12 @@
+{% extends "master.html" %}
+{% load static %}
+
+{% block link %}
+    <link rel="stylesheet" href="{% static "style.css" %}">
+{% endblock link %}
+
+{% block content %}
+    <h1>Welcome {{ name }}!</h1>
+{% endblock content %}
+
+{% block footer %}{% include "fart.html" with beloved="Margaret Galvez"%}{% endblock footer %}

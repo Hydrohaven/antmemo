@@ -1,0 +1,65 @@
+07/17/2024 Goals
+- Navbar (Left: Home, Catalog) (Right: Profile Icon)
+    - Copy stuff from Quizlet
+    - Navbar stays on screen
+    - Similar border glow background of each item
+    - That main color border under the navbar looks really nice
+- New 'User' SQL model
+- Create user page (Hyperlink on home page takes you to user creation page)
+    - Center of the screen
+    - 2 Rows of textareas, Username and Password
+    - Centered sign up button
+    - Not adding a forgot password thing for now
+- Login user page (Hyperlink on top right of screen, rightmost of navbar)
+    - Replicates new user creation screen, instead just says Login
+    - Doesn't actually have any functionality right now, it'll just display the user's name
+    - Display user's name with a welcome message, 'Welcome back, [name]!'
+- About page (Hyperlink either in navbar or footer)
+    - Tells the user what the project is about in a couple sentences
+    - Link my github
+    - Link my email
+    - Link my Quizlet for the fun of it, like a 'Check out my other projects!'
+        then they'll see how much i ripped from it
+    - I'm imagining this stuff kinda centered across the screen, maybe like a padding that takes up 10-20% of the screen
+- Proper footer
+    - I want like a footer that is separted from the rest of the page
+    - Top of footer border is main color 1, that blue i use for tag
+    - Background color of footer is same background color for navbar which is back-color2
+    - Not exactly how im picturing this footer, im kinda imaging those 4-column ones where the text is real small
+        Same links as navbar, as well as like a 'made in [20XX] by Joshua Sullivan' or something like that
+- Catalog Screen: Flipping Cards
+    - You can flip a coruse card to take notes on it, rather than text area being on the bottom of the card
+    - You arent going to click on the card itself, cuz i want users to be able to highlight and copy text
+    - So the flip option will be some sort of button the bottom right, kidnve like a reroll looking roundy arrow?
+    - Hovering it will reveal a lighter-color circle around it and the text "Flip card" will appear,
+    - The arrow will only appear when you hover the card
+- Miscellaneous (low prio):
+    - Define proper palette, make them into smartly named root variables
+    - Instead of making 100px padding, change to percentages or use vh/vw (low prio)
+    - Additionally from last point, make the website a little more responsive (low prio)
+    - Keep the I love Margaret Galvez header for now, navbar just go goes on top of it i got no reason to remove it <3
+
+* This is like 5 different things i want to add to this project, i dont gotta do all of them today but these are the next 5 things im adding
+* Finish these things in the next 2 days though and no later, by the end of this week I want to get into the meat of the project
+* Upload to GitHub by the end of this week, make it a proper GitHub Pages too
+
+
+
+
+BIG STUFF FOR LATER, MAIN MEAT OF THE PROJECT
+- User stays logged into their account using cookies or something? I HAVE NO CLUE HOW TO DO THIS
+- User distinct notes per class
+- The ability to see every class you've made notes on, categorized by its department starting from #1
+- The ability to take notes on each class, this one im not entire sure on what to do yet, here's my idea though
+    - So on the course catalog page (what i'll do for now) each class has a button on the bottom of its card
+    - Button says '+Add Note', where the plus sign is maybe in a little ball that has a border and uses a lighter version of back-color2?
+    - If you aren't logged in then clicking on button will tell u that u cant make a note unless u make an account
+    - Clicking on button opens up a text area where you can type freely and do whatever
+    - At the bottom right of the text area, outside of the area, is an 'Add' button that adds it to your notes page
+    - There will be a little dropdown notification that says 'You have sucessfully addded note for [class id]'
+    - After a class already has a note tied to it (program knows based on reading users notes database), it will say edit note instead of add note
+- I'm not going to say anymore cuz this is a little farther in the future (later this week? finish by the end of next week?)
+
+
+PROJECT END DATE
+JULY 31st 2024, I MUST FINISH THIS PROJECT BY THE END OF THIS MONTH

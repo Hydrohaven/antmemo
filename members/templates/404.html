@@ -1,0 +1,16 @@
+{% extends "master.html" %}
+{% load static %}
+
+{% block title %}Wrong Address{% endblock title %}
+{% block link %}
+    <link rel="stylesheet" href="{% static "style.css" %}">
+{% endblock link %}
+
+
+{% block content %}
+    <h1>Invalid URL Path</h1>
+
+    <h2>Please connect to a valid URL</h2>
+
+    <h3><a href="/catalog">Return to Catalog</h3>
+{% endblock content %}

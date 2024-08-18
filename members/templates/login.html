@@ -1,0 +1,79 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>{% if type == 'login' %}Login{% else %}Sign Up{% endif %}</title>
+  <link rel="stylesheet" href="{% static "style.css" %}">
+  <link rel="stylesheet" href="{% static "login.css" %}">
+</head>
+
+<body>
+    {% comment %} 
+    
+    I KNOW THIS IS REALLY UGLY BUT LIKE I JUST HAVE TO HAVE SO MANY 
+    IF STATEMENTS BECAUSE IM USING THE SAME HTML FOR BOTH LOGIN AND SIGNUP, 
+    MAYBE THERE'S SOME WAY TO MAKE DJANGO IFS INSIDE OF HTML ELEMENTS
+    PRETTIER BUT I HAVE NO CLUE AS OF RIGHT NOW
+    
+    {% endcomment %}
+
+    <div id="login-box">
+        {% if status == False %}
+            <h1 style="margin: 0px 0px 32px 0px;">{% if type == 'login' %}Login{% else %}Sign Up{% endif %}</h1>
+            
+            <form method="post" {% if type == 'login' %}action="{% url "login" %}"{% else %}action="{% url "signup" %}"{% endif %}>
+                {% csrf_token %}
+                <label for="username">Username:</label><br>
+                <input type="text" name="username" {% if username in users and type == 'signup' or username not in users and type == 'login' and username%}class="user-input wrong"{% else %}class="user-input"{% endif %} minlength="5" required></input>
+
+                {% if username not in users and type == 'login' and username%}<br><span class="error-message">User doesn't exist</span>{% endif %}
+                {% if username in users and type == 'signup'%}<br><span class="error-message">Username already taken</span>{% endif %}
+                <br><br>
+                
+                <label for="password">Password:</label><br>
+                <input type="password" name="password" {% if password == repassword and not incorrectPass %}class="user-input"{% else %}class="user-input wrong"{% endif %} minlength="5" required></input>
+                
+                {% if incorrectPass %}<br><span class="error-message">Incorrect password entered</span>{% endif %}
+                {% if type == 'signup' %}
+                    
+                    {% if password != repassword %}<br><span class="error-message">Passwords do not match</span>{% endif %}
+                    <br><br>
+                    <label for="repassword">Re-type Password:</label><br>
+                    <input type="password" name="repassword" {% if password == repassword %}class="user-input"{% else %}class="user-input wrong"{% endif %} minlength="5" required></input>
+
+                    {% if password != repassword %}<br><span class="error-message">Passwords do not match</span>{% endif %}
+                {% endif %}
+                
+                
+                <br><br><br>
+                <button type="submit">{% if type == 'login' %}Login{% else %}Sign Up{% endif %}</button>
+                <br><br>
+            </form>
+            {% if type == 'login' %}
+                <section style="text-align: center; width: 100%;">Don't have an account? <a href="/signup">Register Now</a></section>
+            {% else %}
+                <section style="text-align: center; width: 100%;">Already signed up? <a href="/login">Login Now</a></section>
+            {% endif %}
+        {% else %}
+            <h2 style="text-align: center;">Welcome {% if type == 'login' %}back {% endif %}<span style="color: var(--main-color1)">{{ username }}</span>!</h2>
+            <h3 style="text-align: center;">Returning you to the <span style="color: var(--main-color1)">Catalog</span> in <span id="countdown">3</span> seconds</h3>
+
+            <script>
+                let countdownElement = document.getElementById('countdown')
+                let countdownNum = 3;
+
+                let countdownInterval = setInterval(function() {
+                    countdownNum--
+                    countdownElement.textContent = countdownNum
+
+                    if (countdownNum <= 0) {
+                        clearInterval(countdownInterval)
+                        window.location.href = '{% url "catalog" %}'
+                    }
+                }, 1000)
+            </script>
+        {% endif %}
+    </div>
+</body>
+</html>

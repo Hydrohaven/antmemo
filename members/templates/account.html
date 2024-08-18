@@ -1,0 +1,72 @@
+{% extends "master.html" %}
+{% load static %}
+
+{% block link %}
+    <link rel="stylesheet" href="{% static "style.css" %}">
+    <link rel="stylesheet" href="{% static "account.css" %}">
+{% endblock link %}
+
+{% block title %}Account Details{% endblock title %}
+
+{% block content %}
+    <div class="account-settings">
+        <div class="section-tags">
+            <button class="section-button" onclick="showDetails(event)">Profile</button><br>
+            <button class="section-button" onclick="showDetails(event)">Security</button><br>
+            <button class="section-button" onclick="showDetails(event)">Account</button><br>
+            <button class="section-button" onclick="showDetails(event)">Notifications</button><br>
+            <button class="section-button" onclick="showDetails(event)">Logout</button><br>
+        </div>
+
+        {% comment %} <div class="separator"></div> {% endcomment %}
+
+        <div class="section-details-container">
+            <div class="section-details" style="visibility: visible;">
+                <h1 style="margin-top: 0px;">Profile</h1>
+                {% lorem 1 b %}
+            </div>
+
+            <div class="section-details">
+                <h1 style="margin-top: 0px;">Account</h1>
+                {% lorem 1 b %}
+            </div>
+
+            <div class="section-details">
+                <h1 style="margin-top: 0px;">Security</h1>
+                {% lorem 1 b %}
+            </div>
+
+            <div class="section-details">
+                <h1 style="margin-top: 0px;">Notifications</h1>
+                {% lorem 1 b %}
+            </div>
+
+            <div class="section-details">
+                <h1 style="margin-top: 0px;">Logout</h1>
+                <form method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="logout">Logout</button>
+                </form>
+            </div>
+        </div>
+        
+    </div>
+{% endblock content %}
+
+{% block script %}
+    <script>
+        function showDetails(event) {
+            const buttons = document.getElementsByClassName("section-button")
+            const details = document.getElementsByClassName("section-details")
+            let sectionName = event.target.innerText
+            
+            for (let i = 0; i < buttons.length; i++) {
+                if (buttons[i].innerText === sectionName) {
+                    details[i].style.visibility = 'visible'
+                } else {
+                    details[i].style.visibility = 'hidden';
+                }
+            }
+        }
+    </script>
+{% endblock script %}

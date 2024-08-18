@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>{% block title %}{% endblock %}</title>
+  <style>{% block style %}{% endblock style %}</style>
+  <link>{% block link %}{% endblock link %}</link>
+  {% load static %}
+</head>
+<body>
+
+<div class="navbar bar">
+    <a class="navbar link" href="/">Home</a>
+    <a class="navbar link" href="/catalog">Catalog</a>
+    <a class="navbar link" href="/about">About</a>
+    <a {% if logged_in %}href="/account"{% else %}href="/login"{% endif %}><img class="navbar logo" src="{% static "profile.svg" %}"></a>
+    <div class="navbar-bottom"></div>
+</div>
+<br>
+
+{% block content %}{% endblock %}
+
+{% block footer %}{% endblock footer %}
+
+{% block script %}{% endblock script %}
+</body>
+</html>
