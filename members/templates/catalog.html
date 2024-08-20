@@ -214,18 +214,19 @@
         var recentNoteBox
         $(document).ready(function() {
             $(document).on('click', function(event) {
-                if (event.target.className == 'note-box') {
-                    recentNoteBox = $(event.target)
-                }
-                
                 // Save if current target is neither the most recent notebox or its save-button
-                if (!$(event.target).is(recentNoteBox)) {  
+                if (!$(event.target).is(recentNoteBox) && recentNoteBox) {  
                     const saveButton = recentNoteBox.closest('.course-card').find('.save-button')
                     if (!$(event.target).is(saveButton)) {
                         var courseID = recentNoteBox.closest('.course-card').find('.course-title.id').text()
                         jquerySave(recentNoteBox.val(), courseID) // For some reason i need to use val() and not text()
                         saveNote(saveButton[0])
+                        recentNoteBox = ''
                     }
+                }
+                
+                if (event.target.className == 'note-box') {
+                    recentNoteBox = $(event.target)
                 }
             })
         })
