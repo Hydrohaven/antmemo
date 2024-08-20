@@ -68,13 +68,16 @@
     </div>  
 
     <div class="main-container">
-        <img onclick="openFilter(event)" id="filter" src="{% static "filter.svg" %}">
+        {% if department %}
+            <img onclick="openFilter(event)" id="filter" src="{% static "filter.svg" %}">
 
-        <div id="settingsMenu" class="hidden">
-            <label>
-                <input onclick="hideCards(event)" type="checkbox" id="setting1">Hide cards without notes</input>
-            </label>
-        </div>
+            <div id="settingsMenu" class="hidden">
+                <label>
+                    <input onclick="hideCards(event)" type="checkbox" id="setting1">Hide cards without notes</input>
+                </label>
+            </div>
+        {% endif %}
+        
     <div class="course-list">
         {% if department %}
         {% for course in allCourses %}
@@ -133,6 +136,7 @@
 {% block script %}
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
+        // Choose Department, reload page with new url and view
         function updateForm(event) {
             event.preventDefault() // prevents form from submitting immediately
             const department = document.getElementById("department-select").value.toUpperCase() // gets value of textfield
@@ -140,6 +144,7 @@
             window.location.href = url
         }
 
+        // Note Functions
         function showNote(event) {
             const innerCard =  event.target.previousElementSibling.firstElementChild
             const saveButton = event.target.previousElementSibling.lastElementChild
@@ -159,7 +164,8 @@
         }
         
         function saveNote(event) {
-            var noteElement = event.target
+            var noteElement = (event instanceof PointerEvent) ? event.target : event  
+    
             if (noteElement.textContent == 'Save') {
                 noteElement.textContent = 'Saved!'
                 noteElement.style.color = 'var(--main-color1)'
@@ -168,11 +174,24 @@
                     noteElement.textContent = 'Save'
                     noteElement.style.color = 'var(--main-color2)'
                 }, 3000)
-            } else {
-                noteElement.textContent = 'Save'
             }
         }
+
         
+        // JQUERY SAVE FUNCTIONS
+        function jquerySave(noteContent, courseID) {
+            $.ajax({
+                type: 'POST',
+                url: '{% url "save_note" %}',
+                data: {
+                    'note_content': noteContent,
+                    'course_id': courseID.trim(),
+                    'csrfmiddlewaretoken': '{{ csrf_token }}',
+                },
+            })
+        }
+
+        // Closest and find are jquery methods! Meaning i can only call them on $ (jquery) objects
         $(document).ready(function() {
             $('.save-button').click(function() {
                 event.preventDefault()
@@ -182,23 +201,37 @@
 
                 var noteContent = courseCard.find('.note-box').val() // find travels down the DOM tree
                 var csrfToken = '{{ csrf_token }}'
-                var courseId = courseCard.find('.course-title.id').text()
+                var courseID = courseCard.find('.course-title.id').text()
 
                 //Ajax stands for Asynchronus JAvacsript Xml, some cool async tpya stuff
-                $.ajax({
-                    type: 'POST',
-                    url: '{% url "save_note" %}',
-                    data: {
-                        'note_content': noteContent,
-                        'course_id': courseId.trim(),
-                        'csrfmiddlewaretoken': csrfToken,
-                    },
-                    success: function(response) {},
-                    error: function(response) {}
-                })
+                jquerySave(noteContent, courseID)
             })
         })
 
+        // We use $(document).on('click') instead of $(document).click because 
+        //  .click only attaches event listeners to elements that already exist
+        //  in the DOM 
+        var recentNoteBox
+        $(document).ready(function() {
+            $(document).on('click', function(event) {
+                if (event.target.className == 'note-box') {
+                    recentNoteBox = $(event.target)
+                }
+                
+                // Save if current target is neither the most recent notebox or its save-button
+                if (!$(event.target).is(recentNoteBox)) {  
+                    const saveButton = recentNoteBox.closest('.course-card').find('.save-button')
+                    if (!$(event.target).is(saveButton)) {
+                        var courseID = recentNoteBox.closest('.course-card').find('.course-title.id').text()
+                        jquerySave(recentNoteBox.val(), courseID) // For some reason i need to use val() and not text()
+                        saveNote(saveButton[0])
+                    }
+                }
+            })
+        })
+        
+
+        // Filter Functions
         function openFilter(event) {
             var filterButton = document.getElementById('filter')
             var settingsMenu = document.getElementById('settingsMenu')
