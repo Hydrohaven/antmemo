@@ -21,7 +21,6 @@
     }
 
     #filter {
-        {% comment %} position: absolute; {% endcomment %}
         float: right;
         height: 40px;
         padding: 0px 0px 0px 15px;
@@ -29,21 +28,40 @@
     }
 
 
-    #settingsMenu {
+    #filter-menu {
         position: absolute;
         background-color: var(--back-color2);
         padding: 15px;
         border: 2px solid #384156;
         border-radius: 10px;
-        z-index: 1000;
-        {% comment %} display: none; /* Initially hidden */ {% endcomment %}
-        float: right;
+        z-index: 5;
+        {% comment %} float: right; {% endcomment %}
     }
 
     .hidden {
         display: none;
     }
 
+    .course-popup {
+        color: var(--main-color1);
+        cursor: pointer;
+        text-decoration: underline;
+    }
+
+    #popup-menu {
+        position: absolute;
+        background-color: var(--back-color2);
+        border: 2px solid #384156;
+        border-radius: 10px;
+        z-index: 5;
+        display: none;
+        width: 30%;
+        padding: 10px;
+    }
+
+    #popup-menu.active {
+        display: block;
+    }
 {% endblock style %}
 
 
@@ -71,20 +89,18 @@
         {% if department %}
             <img onclick="openFilter(event)" id="filter" src="{% static "filter.svg" %}">
 
-            <div id="settingsMenu" class="hidden">
+            <div id="filter-menu" class="hidden">
                 <label>
                     <input onclick="hideCards(event)" type="checkbox" id="setting1">Hide cards without notes</input>
                 </label>
             </div>
-        {% endif %}
-        
+        {% endif %}        
     <div class="course-list">
         {% if department %}
         {% for course in allCourses %}
             {% if course.department_tag == department %}
                 <div class="course-card">
                     <h2>
-                        {% comment %} There's gotta be a way to make this prettier right? {% endcomment %}
                         <span class="course-title id">{{ course.id }}</span> - 
                         <span class="course-title name">
                             {{ course.title }}. {{ course.unit_min }}
@@ -95,13 +111,13 @@
                     </h2>
 
                     <div class="course-card-front">                
-                        <p>{{ course.description }}</p>
+                        <p>{{ course.description|safe }}</p>
                         
-                        {% if course.coreq %}<p><strong>Corequisite:</strong> {{ course.coreq }}</p>{% endif %}
-                        {% if course.prereqs %}<p><strong>Prerequisite:</strong> {{ course.prereqs }}</p>{% endif %}
-                        {% if course.same_as %}<p>Same as {{ course.same_as }}</p>{% endif %}
-                        {% if course.overlap %}<p>Overlaps with {{ course.overlap }}</p>{% endif %}
-                        {% if course.restriction %}<p><strong>Resriction:</strong> {{ course.restriction }}</p>{% endif %}
+                        {% if course.coreq %}<p><strong>Corequisite:</strong> {{ course.coreq|safe }}</p>{% endif %}
+                        {% if course.prereqs %}<p><strong>Prerequisite:</strong> {{ course.prereqs|safe }}</p>{% endif %}
+                        {% if course.same_as %}<p>Same as {{ course.same_as|safe }}</p>{% endif %}
+                        {% if course.overlap %}<p>Overlaps with {{ course.overlap|safe }}</p>{% endif %}
+                        {% if course.restriction %}<p><strong>Resriction:</strong> {{ course.restriction|safe }}</p>{% endif %}
                     </div>
                     
                     {% if logged_in %}
@@ -200,7 +216,6 @@
                 var courseCard = saveButton.closest('.course-card') // closest travels up the DOM tree until it finds a matching value
 
                 var noteContent = courseCard.find('.note-box').val() // find travels down the DOM tree
-                var csrfToken = '{{ csrf_token }}'
                 var courseID = courseCard.find('.course-title.id').text()
 
                 //Ajax stands for Asynchronus JAvacsript Xml, some cool async tpya stuff
@@ -211,22 +226,22 @@
         // We use $(document).on('click') instead of $(document).click because 
         //  .click only attaches event listeners to elements that already exist
         //  in the DOM 
-        var recentNoteBox
+        var $recentNoteBox
         $(document).ready(function() {
             $(document).on('click', function(event) {
                 // Save if current target is neither the most recent notebox or its save-button
-                if (!$(event.target).is(recentNoteBox) && recentNoteBox) {  
-                    const saveButton = recentNoteBox.closest('.course-card').find('.save-button')
+                if (!$(event.target).is($recentNoteBox) && $recentNoteBox) {  
+                    const saveButton = $recentNoteBox.closest('.course-card').find('.save-button')
                     if (!$(event.target).is(saveButton)) {
-                        var courseID = recentNoteBox.closest('.course-card').find('.course-title.id').text()
-                        jquerySave(recentNoteBox.val(), courseID) // For some reason i need to use val() and not text()
+                        var courseID = $recentNoteBox.closest('.course-card').find('.course-title.id').text()
+                        jquerySave($recentNoteBox.val(), courseID) // For some reason i need to use val() and not text()
                         saveNote(saveButton[0])
-                        recentNoteBox = ''
+                        $recentNoteBox = ''
                     }
                 }
                 
                 if (event.target.className == 'note-box') {
-                    recentNoteBox = $(event.target)
+                    $recentNoteBox = $(event.target)
                 }
             })
         })
@@ -235,22 +250,27 @@
         // Filter Functions
         function openFilter(event) {
             var filterButton = document.getElementById('filter')
-            var settingsMenu = document.getElementById('settingsMenu')
+            var filterMenu = document.getElementById('filter-menu')
             
             //event.stopPropagation()
             var rect = filterButton.getBoundingClientRect()
-            settingsMenu.style.top = rect.bottom + 'px'
-            settingsMenu.style.left = rect.left + 'px'
-            settingsMenu.classList.toggle("hidden")
+            filterMenu.style.top = rect.bottom + 'px'
+            filterMenu.style.left = rect.left + 'px'
+            filterMenu.classList.toggle("hidden")
         }
 
-        // Close the menu if clicking outside of it
+        // Close the menus if clicking outside of it
         document.addEventListener('click', function(event) {
             var filterButton = document.getElementById('filter')
-            var settingsMenu = document.getElementById('settingsMenu') 
+            var filterMenu = document.getElementById('filter-menu') 
 
-            if (!settingsMenu.contains(event.target) && !filterButton.contains(event.target)) {
-                settingsMenu.classList.add('hidden')
+            if (!filterMenu.contains(event.target) && !filterButton.contains(event.target)) {
+                filterMenu.classList.add('hidden')
+            }
+
+            var popupMenu = document.getElementById('popup-menu')
+            if (!popupMenu.contains(event.target)) {
+                popupMenu.classList.remove('active')
             }
         })
 
@@ -271,7 +291,62 @@
                 }
             }
         }
-        
+
+        // Popup Functions
+        var lastTopPos
+        var lastLeftPos
+        $(function() { // $(document).ready shorthand!
+            $('body').on('click', '.course-popup', function() {
+                var $courseElement = $(this) // span course-popup element
+                var courseName = $courseElement.text()
+
+                $.ajax({
+                    url: '{% url "popup" %}',
+                    type: 'GET',
+                    data: {
+                        'course_id': courseName,
+                    },
+                    success: function(response) {
+                        $('#popup-menu').remove();
+                        var $popup = $('<div id="popup-menu"></div>').html(response.html)
+                        
+                        var offset = $courseElement.offset() // gets coords of element relative to document
+                        var topPos = offset.top + $courseElement.height() // top offset + the height of the text so window appears right below
+                        var leftPos = offset.left
+
+                        $('body').append($popup);
+                        
+                        if (!$courseElement.closest('#popup-menu').length) {
+                            var popupWidth = $popup.outerWidth();
+                            var rightEdge = leftPos + popupWidth;
+
+                            var screenWidth = $(window).width()
+                            if (rightEdge > screenWidth) { // if popup window is off of screen
+                                leftPos = screenWidth - popupWidth - 10 // -10 for padding!
+                            }
+
+                            lastTopPos = topPos
+                            lastLeftPos = leftPos
+                        } else {
+                            topPos = lastTopPos
+                            leftPos = lastLeftPos
+                        }
+                        
+                        
+                        $popup.css({
+                            top: topPos,
+                            left: leftPos
+                        })
+
+                        $popup.addClass('active');
+                    },
+                    error: function(xhr, status, error) {
+                        console.log("An error occurred: " + error);
+                    }
+                })
+            })
+        })
+
     </script>
 {% endblock script %}
 

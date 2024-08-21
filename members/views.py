@@ -4,13 +4,14 @@ from django.template import loader
 from .models import Department, Course, Note
 from .connect import connect
 
-from django.shortcuts import redirect
-from django.contrib import messages
+from django.shortcuts import redirect, get_object_or_404
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
+
+import re
 
 def catalog(request):
     template = loader.get_template('catalog.html')
@@ -23,13 +24,32 @@ def catalog(request):
 
 def courses(request, department):
     template = loader.get_template('catalog.html')
+    departments = [(d['name'], d['tag']) for d in Department.objects.all().values()]
+
+    # Chat Function, thank you, i will learn regex at a later point...
+    #  Explanation for some stuff:
+    #  
+    def html_courses(text):
+        for name, tag in departments:
+            # \s = escape character for space, [A-Z]? means possible character betwen A-Z
+            # \d+ = escape character for any positive digit (im pretty sure)
+            pattern = fr'(?<!\w)({re.escape(tag)} [A-Z]?[A-Z]?\d+[A-Z]?[A-Z]?)(?!\w)'
+            text = re.sub(pattern, lambda match: f'<span class="course-popup">{match.group(0)}</span>', text)
+        return text
     
     def add_courses():
         for c in connect():
             if len(c['units']) == 1:
                 c['units'] = [c['units'][0], c['units'][0]]
             
-            course = Course(id=c['id'], title=c['title'], department_tag=c['department'], department_name=c['department_name'], description=c['description'], unit_min=c['units'][0], unit_max=c['units'][1], prereqs=c['prerequisite_text'], overlap=c['overlap'], same_as=c['same_as'], restriction=c['restriction'], coreq=c['corequisite'])
+            fields_to_process = ['description', 'prerequisite_text', 'overlap', 'same_as', 'corequisite', 'restriction']
+            
+            for field in fields_to_process:
+                c[field] = html_courses(c[field])
+            
+            course = Course(c['id'], c['title'], c['department'], c['department_name'], 
+                            c['description'], c['units'][0], c['units'][1], c['prerequisite_text'], 
+                            c['overlap'], c['same_as'], c['restriction'], c['corequisite'])
             course.save()
     
     def del_courses():
@@ -38,12 +58,10 @@ def courses(request, department):
 
     # del_courses()
     # add_courses()
-
-    messages.success(request, 'Note saved successfully!')
     
     # Grab user notes if logged in
     logged_in = request.session.get('username', '')
-    user_notes = ''
+    user_notes = '' 
     if logged_in:
         user_id = [u['id'] for u in User.objects.all().values() if u['username'] == logged_in][0]
         user_notes = [(n['course_id'], n['note']) for n in Note.objects.all().values() if n['user_id'] == user_id]
@@ -51,7 +69,7 @@ def courses(request, department):
     context = {
         'allCourses' : Course.objects.all().values(), # query set grabbed from the sql
         'department' : department, # this value is obtained from the URL, as seen in urls.py as <str:department>, and stored in parameter
-        'allDepartments' : [(d['name'], d['tag']) for d in Department.objects.all().values()], # Returns a list of all departments as tuples (name, tag) 
+        'allDepartments' : departments, # Returns a list of all departments as tuples (name, tag) 
         'logged_in' : logged_in,
         'user_notes' : user_notes,
     }
@@ -155,3 +173,39 @@ def save_note(request):
         note.save()
         return JsonResponse({'status': 'success', 'message': 'Note saved'})
     return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)
+
+def popup(request):
+    # request.headers.get('x-requested-with') == 'XMLHttpRequest' is equal to is_ajax() since it was deprecated
+    if request.GET.get('course_id') and request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        course_id = request.GET.get('course_id').replace(' ', '')
+        course = Course.objects.get(id=course_id)
+
+        # HTML Creation
+        units = f'{course.unit_min}'
+        if course.unit_min != course.unit_max:
+            units += f'-{course.unit_max}'
+
+        html = f"""
+            <h2 style="margin-top: 7px">
+                <span class="course-title id">{course.id}</span> - 
+                <span class="course-title name">
+                    {course.title}. {units} units
+                </span>
+            </h2>
+            <div class="course-card-front">                
+                <p>{course.description}</p>
+            """
+
+        html += f'<p><strong>Corequisite:</strong> {course.coreq}</p>' if course.coreq else ''
+        html += f'<p><strong>Prerequisite:</strong> {course.prereqs}</p>' if course.prereqs else ''
+        html += f'<p>Same as {course.same_as}</p>' if course.same_as else ''
+        html += f'<p>Overlaps with {course.overlap}</p>' if course.overlap else ''
+        html += f'<p><strong>Resriction:</strong> {course.restriction}</p>' if course.restriction else ''
+        html += '</div>'
+
+        response_data = {
+            'html': html
+        }
+
+        return JsonResponse(response_data)
+    return JsonResponse({'error': 'Invalid Request'}, status=400)
