@@ -187,3 +187,50 @@ a:visited {
 a:active {
     color: var(--main-color3);
 }
+
+.main-container {
+    padding: 20px 0px 20px 20px;
+    margin: 10px 80px 0px 100px;
+}
+
+#filter {
+    float: right;
+    height: 40px;
+    padding: 0px 0px 0px 15px;
+    cursor: pointer;
+}
+
+
+#filter-menu {
+    position: absolute;
+    background-color: var(--back-color2);
+    padding: 15px;
+    border: 2px solid #384156;
+    border-radius: 10px;
+    z-index: 5;
+}
+
+.hidden {
+    display: none;
+}
+
+.course-popup {
+    color: var(--main-color1);
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+#popup-menu {
+    position: absolute;
+    background-color: var(--back-color2);
+    border: 2px solid #384156;
+    border-radius: 10px;
+    z-index: 5;
+    display: none;
+    width: 30%;
+    padding: 10px;
+}
+
+#popup-menu.active {
+    display: block;
+}

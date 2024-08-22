@@ -15,53 +15,7 @@
 
 
 {% block style %}
-    .main-container {
-        padding: 20px 0px 20px 20px;
-        margin: 10px 80px 0px 100px;
-    }
-
-    #filter {
-        float: right;
-        height: 40px;
-        padding: 0px 0px 0px 15px;
-        cursor: pointer;
-    }
-
-
-    #filter-menu {
-        position: absolute;
-        background-color: var(--back-color2);
-        padding: 15px;
-        border: 2px solid #384156;
-        border-radius: 10px;
-        z-index: 5;
-        {% comment %} float: right; {% endcomment %}
-    }
-
-    .hidden {
-        display: none;
-    }
-
-    .course-popup {
-        color: var(--main-color1);
-        cursor: pointer;
-        text-decoration: underline;
-    }
-
-    #popup-menu {
-        position: absolute;
-        background-color: var(--back-color2);
-        border: 2px solid #384156;
-        border-radius: 10px;
-        z-index: 5;
-        display: none;
-        width: 30%;
-        padding: 10px;
-    }
-
-    #popup-menu.active {
-        display: block;
-    }
+    
 {% endblock style %}
 
 
@@ -83,6 +37,8 @@
             </select>
             <button type="submit" onclick="updateForm(event)" id="department-submit">Submit</button>
         </form>
+
+        
     </div>  
 
     <div class="main-container">
@@ -94,7 +50,9 @@
                     <input onclick="hideCards(event)" type="checkbox" id="setting1">Hide cards without notes</input>
                 </label>
             </div>
-        {% endif %}        
+        {% endif %}
+        
+        <div id="popup-menu"></div>
     <div class="course-list">
         {% if department %}
         {% for course in allCourses %}
@@ -147,8 +105,6 @@
     </div>
 {% endblock content %}
 
-{% block footer %}{% include "fart.html" with beloved="Margaret Galvez"%}{% endblock footer %}
-
 {% block script %}
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
@@ -178,10 +134,10 @@
                 noteButton.textContent = '+ Add Notes'
             }
         }
-        
+
         function saveNote(event) {
             var noteElement = (event instanceof PointerEvent) ? event.target : event  
-    
+
             if (noteElement.textContent == 'Save') {
                 noteElement.textContent = 'Saved!'
                 noteElement.style.color = 'var(--main-color1)'
@@ -193,7 +149,7 @@
             }
         }
 
-        
+
         // JQUERY SAVE FUNCTIONS
         function jquerySave(noteContent, courseID) {
             $.ajax({
@@ -346,7 +302,7 @@
                 })
             })
         })
-
+        
     </script>
 {% endblock script %}
 
