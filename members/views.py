@@ -87,6 +87,15 @@ def about(request):
 
     return HttpResponse(template.render(context, request))
 
+def home(request):
+    template = loader.get_template('home.html')
+
+    context = {
+        'temp': 'temp',
+    }
+
+    return HttpResponse(template.render(context, request))
+
 def account(request):
     template = loader.get_template('account.html')
 

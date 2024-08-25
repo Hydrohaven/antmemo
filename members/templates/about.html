@@ -5,8 +5,13 @@
     <link rel="stylesheet" href="{% static "style.css" %}">
 {% endblock link %}
 
-{% block content %}
-    <h1>Welcome {{ name }}!</h1>
-{% endblock content %}
+{% block style %}
 
-{% block footer %}{% include "fart.html" with beloved="Margaret Galvez"%}{% endblock footer %}
+{% endblock style %}
+
+{% block content %}
+    <div style="margin: auto; width: 50%; border: 1px dotted red">
+        <h1>Welcome {{ name }}!</h1>
+        <p style="font-size: 20px">{% lorem 1 b random %}</p>
+    </div>
+{% endblock content %}

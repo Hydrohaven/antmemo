@@ -15,13 +15,13 @@
 
 
 {% block style %}
-    
+
 {% endblock style %}
 
 
 {% block content %}
     <div id="header">
-        <h1 style="margin: 0px 0px 20px 0px">{% if department %}{{ department }} Catalog{% else %}Course Catalog{% endif %}</h1>
+        <h1 style="margin: 0px 0px 20px 0px">{% if department %}{{ department }} Catalog{% else %}Select Department{% endif %}</h1>
         <form id="department-form">
             <label for="department">Choose:</label>
             <select type="text" id="department-select" name="department">
@@ -37,8 +37,17 @@
             </select>
             <button type="submit" onclick="updateForm(event)" id="department-submit">Submit</button>
         </form>
-
         
+        {% if department == None %}
+            <h1>or</h1>
+            {% comment %} <br><br><br> {% endcomment %}
+            <div class="department-button-container">
+                {% for d in allDepartments %}
+                    <button class="department-button" value="{{ d.1 }}" onclick="buttonSelect(event)">{{ d.0 }} <span style="color: var(--main-color1)">({{ d.1 }})</span></button>
+                {% endfor %}
+            </div>
+        {% endif %}
+
     </div>  
 
     <div class="main-container">
@@ -113,6 +122,12 @@
             event.preventDefault() // prevents form from submitting immediately
             const department = document.getElementById("department-select").value.toUpperCase() // gets value of textfield
             const url = '{% url "courses" "temp" %}'.replace('temp', department.replace(/[\s\\\/]/g, "%20")) // django url takes the current url and urlpatterns from urls.py
+            window.location.href = url
+        }
+
+        // Button Select for Departments
+        function buttonSelect(event) {
+            const url = '{% url "courses" "temp" %}'.replace('temp', event.target.value.replace(/[\s\\\/]/g, "%20"))
             window.location.href = url
         }
 
