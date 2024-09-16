@@ -91,6 +91,7 @@ def home(request):
     template = loader.get_template('home.html')
 
     context = {
+        'logged_in' : request.session.get('username', ''),
         'temp': 'temp',
     }
 

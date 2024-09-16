@@ -312,7 +312,39 @@
                         $popup.addClass('active');
                     },
                     error: function(xhr, status, error) {
-                        console.log("An error occurred: " + error);
+                        $('#popup-menu').remove();
+                        const html = '<p>Class does not exist. Refer to <a target="_blank" href="https://api.peterportal.org/">PeterPortal API</a> for more information.</p>'
+                        var $popup = $('<div id="popup-menu"></div>').html(html)
+                        
+                        var offset = $courseElement.offset() // gets coords of element relative to document
+                        var topPos = offset.top + $courseElement.height() // top offset + the height of the text so window appears right below
+                        var leftPos = offset.left
+
+                        $('body').append($popup);
+                        
+                        if (!$courseElement.closest('#popup-menu').length) {
+                            var popupWidth = $popup.outerWidth();
+                            var rightEdge = leftPos + popupWidth;
+
+                            var screenWidth = $(window).width()
+                            if (rightEdge > screenWidth) { // if popup window is off of screen
+                                leftPos = screenWidth - popupWidth - 10 // -10 for padding!
+                            }
+
+                            lastTopPos = topPos
+                            lastLeftPos = leftPos
+                        } else {
+                            topPos = lastTopPos
+                            leftPos = lastLeftPos
+                        }
+                        
+                        
+                        $popup.css({
+                            top: topPos,
+                            left: leftPos
+                        })
+
+                        $popup.addClass('active');
                     }
                 })
             })
