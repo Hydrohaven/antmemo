@@ -6,7 +6,7 @@ No installation is required, the website can EVENTUALLY be accessed through a li
 
 # Images
 ![](img/zprev1.png)
-_Department selection screen_\
+_Department selection screen, users can select a department through the dropdown menu or select one in the table below._\
 \
 ![](img/zprev2.png)
 _Course catalog screen, features every course offered at UCI_\
