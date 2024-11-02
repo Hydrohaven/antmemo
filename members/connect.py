@@ -16,7 +16,6 @@ def connect() -> dict:
     def parse_int(course: dict) -> int:
         return int(''.join([c for c in course['id'] if c.isnumeric()]))
     
-
     allCourses.sort(key = parse_int)
     # Replaces all / characters with a space to avoid url issues (these spaces become %20 later)
     for c in allCourses: 
